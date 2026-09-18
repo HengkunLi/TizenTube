@@ -119,6 +119,14 @@
                 "title": "User Interface Settings",
                 "subtitle": "Customize the UI to your liking",
                 "options": {
+                    "profileContent": {
+                        "title": "Current Account Content",
+                        "subtitle": "These options apply only to the currently active YouTube account",
+                        "showShorts": "Show Shorts",
+                        "hideHomeRecommendations": "Hide Home Recommendations",
+                        "hideRelatedVideos": "Hide Related Videos",
+                        "hideSubscribeButtons": "Hide Subscribe Buttons"
+                    },
                     "hideWatchedVideos": {
                         "title": "Hide Watched Videos",
                         "options": {

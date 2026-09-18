@@ -4,6 +4,7 @@ import resolveCommand from '../resolveCommand.js';
 import { timelyAction, longPressData, MenuServiceItemRenderer, ShelfRenderer, TileRenderer, ButtonRenderer } from '../ui/ytUI.js';
 import { PatchSettings } from '../ui/customYTSettings.js';
 import { t } from 'i18next';
+import { applyContentRestrictions } from '../utils/contentRestrictions.js';
 
 /**
  * This is a minimal reimplementation of the following uBlock Origin rule:
@@ -312,6 +313,12 @@ JSON.parse = function () {
         )
       })
     }
+
+    applyContentRestrictions(r, {
+      hideShorts: !configRead('enableShorts'),
+      hideHomeRecommendations: configRead('hideHomeRecommendations'),
+      hideSubscribeButtons: configRead('hideSubscribeButtons'),
+    });
   } catch (e) {
     console.error('An error occured while processing the JSON:', e);
   }

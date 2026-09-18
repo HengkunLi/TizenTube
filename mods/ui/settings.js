@@ -286,11 +286,6 @@ export default function modernUI(update, parameters) {
                     value: 'enableLongPress'
                 },
                 {
-                    name: t('settings.options.misc.options.shorts'),
-                    icon: 'YOUTUBE_SHORTS_FILL_24',
-                    value: 'enableShorts'
-                },
-                {
                     name: t('settings.options.misc.options.videoPreviews'),
                     value: 'enablePreviews'
                 },
@@ -412,11 +407,6 @@ export default function modernUI(update, parameters) {
                     })
                 },
                 {
-                    name: t('settings.options.videoPlayer.options.hideRelatedVideosPlayer'),
-                    icon: 'VISIBILITY_OFF',
-                    value: 'hideRelatedVideosPlayer'
-                },
-                {
                     name: t('settings.options.videoPlayer.options.preferredVideoCodec.title'),
                     icon: 'VIDEO_QUALITY',
                     value: null,
@@ -466,6 +456,38 @@ export default function modernUI(update, parameters) {
                 subtitle: t('settings.options.uiSettings.subtitle')
             },
             options: [
+                {
+                    name: t('settings.options.uiSettings.options.profileContent.title'),
+                    icon: 'ACCOUNT_CIRCLE',
+                    value: null,
+                    menuId: 'tt-profile-content-settings',
+                    menuHeader: {
+                        title: t('settings.options.uiSettings.options.profileContent.title'),
+                        subtitle: t('settings.options.uiSettings.options.profileContent.subtitle')
+                    },
+                    options: [
+                        {
+                            name: t('settings.options.uiSettings.options.profileContent.showShorts'),
+                            icon: 'YOUTUBE_SHORTS_FILL_24',
+                            value: 'enableShorts'
+                        },
+                        {
+                            name: t('settings.options.uiSettings.options.profileContent.hideHomeRecommendations'),
+                            icon: 'VISIBILITY_OFF',
+                            value: 'hideHomeRecommendations'
+                        },
+                        {
+                            name: t('settings.options.uiSettings.options.profileContent.hideRelatedVideos'),
+                            icon: 'VISIBILITY_OFF',
+                            value: 'hideRelatedVideosPlayer'
+                        },
+                        {
+                            name: t('settings.options.uiSettings.options.profileContent.hideSubscribeButtons'),
+                            icon: 'VISIBILITY_OFF',
+                            value: 'hideSubscribeButtons'
+                        }
+                    ]
+                },
                 {
                     name: t('settings.options.uiSettings.options.hideWatchedVideos.title'),
                     icon: 'VISIBILITY_OFF',

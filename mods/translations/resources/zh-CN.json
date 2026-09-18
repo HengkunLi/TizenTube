@@ -1,0 +1,28 @@
+{
+    "settings": {
+        "options": {
+            "uiSettings": {
+                "title": "界面设置",
+                "subtitle": "定制 YouTube TV 界面",
+                "options": {
+                    "profileContent": {
+                        "title": "当前账户内容",
+                        "subtitle": "这些选项只应用于当前登录的 YouTube 账户",
+                        "showShorts": "显示 Shorts 短视频",
+                        "hideHomeRecommendations": "隐藏首页推荐内容",
+                        "hideRelatedVideos": "隐藏相关视频",
+                        "hideSubscribeButtons": "隐藏订阅按钮"
+                    },
+                    "disableSidebarContents": {
+                        "title": "隐藏左侧菜单栏目",
+                        "subtitle": "选择要从当前账户左侧菜单隐藏的栏目"
+                    },
+                    "sortSidebarContents": {
+                        "title": "排列左侧菜单栏目",
+                        "subtitle": "调整当前账户左侧菜单栏目的顺序"
+                    }
+                }
+            }
+        }
+    }
+}

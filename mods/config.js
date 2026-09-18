@@ -1,4 +1,20 @@
 const CONFIG_KEY = 'ytaf-configuration';
+const PROFILE_CONFIG_KEY = 'ytaf-profile-configuration';
+const PROFILE_CONFIG_VERSION = 1;
+
+// These settings describe what is visible to a viewer, so they belong to the
+// active YouTube account instead of the TV as a whole. Other TizenTube settings
+// intentionally keep their existing device-wide behaviour.
+const profileScopedKeys = new Set([
+  'enableShorts',
+  'hideRelatedVideosPlayer',
+  'hideHomeRecommendations',
+  'hideSubscribeButtons',
+  'disabledSidebarContents',
+  'sidebarContentsOrder',
+  'disableChannelsOnSidebar',
+]);
+
 const defaultConfig = {
   enableAdBlock: true,
   enableSponsorBlock: true,
@@ -68,18 +84,89 @@ const defaultConfig = {
   disableEnlargingThumbnails: false,
   enableShrinkingThumbnails: false,
   hideRelatedVideosPlayer: false,
+  hideHomeRecommendations: false,
+  hideSubscribeButtons: false,
 };
 
 let localConfig;
+let profileConfig;
+let activeProfileId = null;
 
-try {
-  localConfig = JSON.parse(window.localStorage[CONFIG_KEY]);
-} catch (err) {
-  console.warn('Config read failed:', err);
-  localConfig = defaultConfig;
+function cloneValue(value) {
+  if (value === undefined || value === null || typeof value !== 'object') return value;
+  return JSON.parse(JSON.stringify(value));
+}
+
+function readStoredObject(key, fallback) {
+  const storedValue = window.localStorage[key];
+  if (storedValue === undefined || storedValue === null || storedValue === '') {
+    return cloneValue(fallback);
+  }
+  try {
+    const value = JSON.parse(storedValue);
+    return value && typeof value === 'object' ? value : cloneValue(fallback);
+  } catch (err) {
+    console.warn(`Config read failed for ${key}:`, err);
+    return cloneValue(fallback);
+  }
+}
+
+localConfig = readStoredObject(CONFIG_KEY, defaultConfig);
+profileConfig = readStoredObject(PROFILE_CONFIG_KEY, {
+  version: PROFILE_CONFIG_VERSION,
+  profiles: {},
+});
+
+if (!profileConfig.profiles || typeof profileConfig.profiles !== 'object') {
+  profileConfig = { version: PROFILE_CONFIG_VERSION, profiles: {} };
+}
+
+function saveProfileConfig() {
+  window.localStorage[PROFILE_CONFIG_KEY] = JSON.stringify(profileConfig);
+}
+
+function getActiveProfileConfig(create = false) {
+  if (!activeProfileId) return null;
+  if (!profileConfig.profiles[activeProfileId] && create) {
+    profileConfig.profiles[activeProfileId] = {};
+  }
+  return profileConfig.profiles[activeProfileId] || null;
+}
+
+export function setActiveProfileId(profileId) {
+  const normalizedId = profileId ? String(profileId) : null;
+  if (normalizedId === activeProfileId) return false;
+
+  const previousProfileId = activeProfileId;
+  activeProfileId = normalizedId;
+  configChangeEmitter.dispatchEvent(new CustomEvent('configChange', {
+    detail: {
+      key: 'activeProfileId',
+      value: activeProfileId,
+      previousValue: previousProfileId,
+    }
+  }));
+  return true;
+}
+
+export function getActiveProfileId() {
+  return activeProfileId;
 }
 
 export function configRead(key) {
+  if (activeProfileId && profileScopedKeys.has(key)) {
+    const currentProfile = getActiveProfileConfig(true);
+    if (currentProfile[key] === undefined) {
+      // Copy, rather than reference, arrays from the old global configuration.
+      // Sidebar code mutates arrays before writing them back.
+      currentProfile[key] = cloneValue(
+        localConfig[key] === undefined ? defaultConfig[key] : localConfig[key]
+      );
+      saveProfileConfig();
+    }
+    return currentProfile[key];
+  }
+
   if (localConfig[key] === undefined) {
     console.warn('Populating key', key, 'with default value', defaultConfig[key]);
     localConfig[key] = defaultConfig[key];
@@ -90,6 +177,17 @@ export function configRead(key) {
 
 export function configWrite(key, value) {
   console.info('Setting key', key, 'to', value);
+
+  if (activeProfileId && profileScopedKeys.has(key)) {
+    const currentProfile = getActiveProfileConfig(true);
+    currentProfile[key] = cloneValue(value);
+    saveProfileConfig();
+    configChangeEmitter.dispatchEvent(new CustomEvent('configChange', {
+      detail: { key, value: currentProfile[key], profileId: activeProfileId }
+    }));
+    return;
+  }
+
   localConfig[key] = value;
   window.localStorage[CONFIG_KEY] = JSON.stringify(localConfig);
   configChangeEmitter.dispatchEvent(new CustomEvent('configChange', { detail: { key, value } }));

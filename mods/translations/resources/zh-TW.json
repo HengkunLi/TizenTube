@@ -113,6 +113,14 @@
                 "title": "使用者介面設定",
                 "subtitle": "打造您喜歡的介面風格",
                 "options": {
+                    "profileContent": {
+                        "title": "目前帳戶內容",
+                        "subtitle": "這些選項只套用於目前使用的 YouTube 帳戶",
+                        "showShorts": "顯示 Shorts（短影音）",
+                        "hideHomeRecommendations": "隱藏首頁推薦內容",
+                        "hideRelatedVideos": "隱藏相關影片",
+                        "hideSubscribeButtons": "隱藏訂閱按鈕"
+                    },
                     "hideWatchedVideos": {
                         "title": "隱藏已觀看影片",
                         "options": {

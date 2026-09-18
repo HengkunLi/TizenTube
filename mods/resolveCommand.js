@@ -1,4 +1,4 @@
-import { configWrite, configRead } from './config.js';
+import { configWrite, configRead, getActiveProfileId } from './config.js';
 import { enablePip } from './features/pictureInPicture.js';
 import modernUI, { optionShow } from './ui/settings.js';
 import { speedSettings } from './ui/speedUI.js';
@@ -8,6 +8,7 @@ import { t } from 'i18next';
 import { requestNextAndNavigateChannel } from './utils/innerTubeCalls.js';
 import qrcode from 'qrcode-npm';
 import showGuideSettings from './ui/sidebarModification.js';
+import { refreshActiveProfile } from './features/accountProfiles.js';
 
 export default function resolveCommand(cmd, _) {
     // resolveCommand function is pretty OP, it can do from opening modals, changing client settings and way more.
@@ -188,7 +189,21 @@ export function patchResolveCommand() {
                     }
                 }
 
-                return ogResolve.call(this, cmd, _);
+                const mayChangeAccount = Boolean(
+                    cmd?.selectActiveIdentityCommand
+                    || cmd?.switchToGuestMode
+                    || cmd?.onIdentityChanged
+                    || cmd?.reloadOnAccountSwitch
+                );
+                const previousProfileId = mayChangeAccount ? getActiveProfileId() : null;
+                const result = ogResolve.call(this, cmd, _);
+
+                // Let YouTube perform its native account-lock/PIN flow without
+                // modification. Once it succeeds, refresh only our profile key.
+                if (mayChangeAccount) {
+                    setTimeout(() => refreshActiveProfile(previousProfileId), 100);
+                }
+                return result;
             }
         }
     }

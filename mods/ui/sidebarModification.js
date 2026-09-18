@@ -2,13 +2,13 @@ import { getGuide } from '../utils/innerTubeCalls.js';
 import { configRead, configWrite } from '../config.js';
 import { buttonItem, overlayPanelItemListRenderer, showModal } from './ytUI.js';
 import { t } from 'i18next';
+import { guideItemId } from '../utils/guideItems.js';
 
 function showSetting(settingType, parameters) {
     if (settingType === 'MOVE_GUIDE_BUTTON') {
         const order = configRead('sidebarContentsOrder');
 
-        const browseId = parameters.item.guideEntryRenderer.navigationEndpoint?.browseEndpoint?.browseId
-            || (parameters.item.guideEntryRenderer.navigationEndpoint?.searchEndpoint && 'search');
+        const browseId = guideItemId(parameters.item);
         const index = order.findIndex(item => {
             if (typeof item === 'object' && item !== null) {
                 return item.browseId === browseId;
@@ -105,12 +105,19 @@ function showSetting(settingType, parameters) {
         const buttons = [];
 
         let idx = 0;
-        const guideItems = guide.items[0].guideSectionRenderer.originalItems
-            || guide.items[0].guideSectionRenderer.items;
+        const guideSection = guide?.items
+            ?.map(item => item?.guideSectionRenderer)
+            .find(section => Array.isArray(section?.items));
+        if (!guideSection) return;
+        const guideItems = guideSection.originalItems || guideSection.items;
         for (const item of guideItems) {
-            const title = item.guideEntryRenderer.formattedTitle.simpleText;
-            const icon = item.guideEntryRenderer.icon?.iconType;
-            const browseId = item.guideEntryRenderer.navigationEndpoint?.browseEndpoint ? item.guideEntryRenderer.navigationEndpoint.browseEndpoint.browseId : 'search';
+            const renderer = item?.guideEntryRenderer;
+            const browseId = guideItemId(item);
+            // Unknown/system entries are deliberately not configurable. They
+            // remain visible as recovery paths when YouTube changes schemas.
+            if (!renderer || !browseId) continue;
+            const title = renderer.formattedTitle?.simpleText || browseId;
+            const icon = renderer.icon?.iconType;
 
             buttons.push(
                 buttonItem(

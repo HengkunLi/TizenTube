@@ -9,14 +9,18 @@ import resolveCommand, { patchResolveCommand } from '../resolveCommand.js';
 import { pipToFullscreen } from '../features/pictureInPicture.js';
 import getCommandExecutor from './customCommandExecution.js';
 import { t } from 'i18next';
+import { initializeActiveProfile } from '../features/accountProfiles.js';
 
 // It just works, okay?
 const interval = setInterval(() => {
   const videoElement = document.querySelector('video');
   if (videoElement) {
-    execute_once_dom_loaded();
-    patchResolveCommand();
     clearInterval(interval);
+    const finishInitialization = () => {
+      execute_once_dom_loaded();
+      patchResolveCommand();
+    };
+    initializeActiveProfile().then(finishInitialization, finishInitialization);
   }
 }, 250);
 
