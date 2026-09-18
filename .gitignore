@@ -1,5 +1,6 @@
 packets/
 node_modules/
+/artifacts/
 *.wgt
 dist/
 .sign
